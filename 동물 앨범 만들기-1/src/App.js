@@ -1,6 +1,7 @@
-import { request } from "./components/api";
-import Content from "./components/Content";
-import TabBar from "./components/TabBar";
+import TabBar from "./components/TabBar.js";
+import Content from "./components/Content.js";
+
+import { request } from "./components/api.js";
 
 export default function App($app) {
   this.state = {
@@ -8,6 +9,7 @@ export default function App($app) {
     photos: [],
   };
 
+  //tabBar
   const tabBar = new TabBar({
     $app,
     initialState: "",
@@ -15,13 +17,15 @@ export default function App($app) {
       this.setState({
         ...this.state,
         currentTab: name,
-        photos: await request(name),
+        photos: await request(name === "all" ? "" : name),
       });
     },
   });
 
-  const content = new Content();
+  //content
+  const content = new Content({ $app, initialState: [] });
 
+  //state
   this.setState = newState => {
     this.state = newState;
     tabBar.setState(this.state.currentTab);
@@ -35,8 +39,10 @@ export default function App($app) {
         ...this.state,
         photos: initialPhotos,
       });
-    } catch (err) {
-      console.log(err);
+    } catch (error) {
+      console.log(error);
     }
   };
+
+  init();
 }
