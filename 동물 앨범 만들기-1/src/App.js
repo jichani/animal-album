@@ -1,7 +1,42 @@
+import { request } from "./components/api";
 import Content from "./components/Content";
 import TabBar from "./components/TabBar";
 
 export default function App($app) {
-  const tabBar = new TabBar();
+  this.state = {
+    currentTab: "all",
+    photos: [],
+  };
+
+  const tabBar = new TabBar({
+    $app,
+    initialState: "",
+    onClick: async name => {
+      this.setState({
+        ...this.state,
+        currentTab: name,
+        photos: await request(name),
+      });
+    },
+  });
+
   const content = new Content();
+
+  this.setState = newState => {
+    this.state = newState;
+    tabBar.setState(this.state.currentTab);
+    content.setState(this.state.photos);
+  };
+
+  const init = async () => {
+    try {
+      const initialPhotos = await request();
+      this.setState({
+        ...this.state,
+        photos: initialPhotos,
+      });
+    } catch (err) {
+      console.log(err);
+    }
+  };
 }
